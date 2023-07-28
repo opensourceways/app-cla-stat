@@ -1,103 +1,33 @@
 package platforms
 
-import (
-	"context"
-	"fmt"
+import "net/http"
 
-	"gitee.com/openeuler/go-gitee/gitee"
-	"github.com/antihax/optional"
-	"golang.org/x/oauth2"
+const (
+	urlToGetGiteeUser = "https://gitee.com/api/v5/user?access_token="
+	urlToGetGiteeOrg  = "https://gitee.com/api/v5/user/orgs?page=1&per_page=100&admin=true&access_token="
 )
 
-type giteeClient struct {
-	accessToken  string
-	refreshToken string
-	c            *gitee.APIClient
+func newGiteeClient() giteeClient {
+	return giteeClient{}
 }
 
-func newGiteeClient(accessToken, refreshToken string) *giteeClient {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
+// giteeClient
+type giteeClient struct{}
 
-	conf := gitee.NewConfiguration()
-	conf.HTTPClient = oauth2.NewClient(context.Background(), ts)
-
-	cli := gitee.NewAPIClient(conf)
-
-	return &giteeClient{refreshToken: refreshToken, accessToken: accessToken, c: cli}
-}
-
-func (this *giteeClient) GetUser() (string, error) {
-	u, _, err := this.c.UsersApi.GetV5User(context.Background(), nil)
+func (cli giteeClient) GetUser(token string) (string, error) {
+	req, err := http.NewRequest(http.MethodGet, urlToGetGiteeUser+token, nil)
 	if err != nil {
 		return "", err
 	}
-	return u.Login, err
+
+	return getUser(req)
 }
 
-func (this *giteeClient) GetAuthorizedEmail() (string, error) {
-	es, rs, err := this.c.EmailsApi.GetV5Emails(context.Background(), nil)
+func (cli giteeClient) ListOrg(token string) ([]string, error) {
+	req, err := http.NewRequest(http.MethodGet, urlToGetGiteeOrg+token, nil)
 	if err != nil {
-		if rs.StatusCode == 401 {
-			return "", fmt.Errorf(errMsgRefuseToAuthorizeEmail)
-		}
-		if rs.StatusCode == 403 {
-			return "", fmt.Errorf(errMsgNoPublicEmail)
-		}
-		return "", err
+		return nil, err
 	}
 
-	for _, item := range es {
-		if item.State != "confirmed" {
-			continue
-		}
-
-		for _, scope := range item.Scope {
-			if scope == "committed" {
-				return item.Email, nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf(errMsgNoPublicEmail)
-}
-
-func (this *giteeClient) IsOrgExist(org string) (bool, error) {
-	orgs, err := this.ListOrg()
-	if err != nil {
-		//TODO :is token expiry
-		return false, err
-	}
-
-	for _, item := range orgs {
-		if item == org {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
-func (this *giteeClient) ListOrg() ([]string, error) {
-	var r []string
-
-	p := int32(1)
-	opt := gitee.GetV5UserOrgsOpts{Admin: optional.NewBool(true)}
-	for {
-		opt.Page = optional.NewInt32(p)
-		ls, _, err := this.c.OrganizationsApi.GetV5UserOrgs(context.Background(), &opt)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(ls) == 0 {
-			break
-		}
-
-		for _, v := range ls {
-			r = append(r, v.Login)
-		}
-
-		p += 1
-	}
-
-	return r, nil
+	return listOrg(req)
 }

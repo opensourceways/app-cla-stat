@@ -13,7 +13,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/huaweicloud/golangsdk"
 	"sigs.k8s.io/yaml"
 )
 
@@ -67,7 +66,7 @@ func LoadFromYaml(path string, cfg interface{}) error {
 		return err
 	}
 
-	_, err = golangsdk.BuildRequestBody(cfg, "")
+	_, err = BuildRequestBody(cfg, "")
 	return err
 }
 

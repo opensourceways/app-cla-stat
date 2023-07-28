@@ -76,12 +76,12 @@ func (ctl *AuthController) Auth() {
 }
 
 func (ctl *AuthController) genACPayload(platform, permission, platformToken string) (*acForCodePlatformPayload, string, error) {
-	pt, err := platforms.NewPlatform(platformToken, "", platform)
+	pt, err := platforms.NewPlatform(platform)
 	if err != nil {
 		return nil, errSystemError, err
 	}
 
-	orgs, err := pt.ListOrg()
+	orgs, err := pt.ListOrg(platformToken)
 	if err != nil {
 		return nil, errSystemError, err
 	}
@@ -89,7 +89,7 @@ func (ctl *AuthController) genACPayload(platform, permission, platformToken stri
 		return nil, errNoOrg, errors.New("no org")
 	}
 
-	user, err := pt.GetUser()
+	user, err := pt.GetUser(platformToken)
 	if err != nil {
 		return nil, errSystemError, err
 	}

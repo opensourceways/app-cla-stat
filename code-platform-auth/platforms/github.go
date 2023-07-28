@@ -1,92 +1,46 @@
 package platforms
 
-import (
-	"context"
-	"fmt"
+import "net/http"
 
-	"github.com/google/go-github/v33/github"
-	"golang.org/x/oauth2"
+const (
+	urlToGetGithubUser = "https://api.github.com/user"
+	urlToGetGithubOrg  = "https://api.github.com/user/orgs?page=1&per_page=100"
 )
 
-type githubClient struct {
-	accessToken  string
-	refreshToken string
-	c            *github.Client
+func newGithubClient() githubClient {
+	return githubClient{}
 }
 
-func newGithubClient(accessToken, refreshToken string) *githubClient {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
-	tc := oauth2.NewClient(context.Background(), ts)
-	cli := github.NewClient(tc)
+// githubClient
+type githubClient struct{}
 
-	return &githubClient{refreshToken: refreshToken, accessToken: accessToken, c: cli}
-}
-
-func (this *githubClient) GetUser() (string, error) {
-	u, _, err := this.c.Users.Get(context.Background(), "")
+func (cli githubClient) GetUser(token string) (string, error) {
+	req, err := cli.newReq(urlToGetGithubUser, token)
 	if err != nil {
 		return "", err
 	}
-	return u.GetLogin(), err
+
+	return getUser(req)
 }
 
-func (this *githubClient) GetAuthorizedEmail() (string, error) {
-	es, rs, err := this.c.Users.ListEmails(context.Background(), nil)
+func (cli githubClient) ListOrg(token string) ([]string, error) {
+	req, err := cli.newReq(urlToGetGithubOrg, token)
 	if err != nil {
-		if rs.StatusCode == 401 {
-			return "", fmt.Errorf(errMsgRefuseToAuthorizeEmail)
-		}
-		if rs.StatusCode == 403 {
-			return "", fmt.Errorf(errMsgNoPublicEmail)
-		}
-		return "", err
+		return nil, err
 	}
 
-	for _, item := range es {
-		if item.GetVerified() && item.GetPrimary() && item.GetVisibility() == "public" {
-			return item.GetEmail(), nil
-		}
-	}
-
-	return "", fmt.Errorf(errMsgNoPublicEmail)
+	return listOrg(req)
 }
 
-func (this *githubClient) IsOrgExist(org string) (bool, error) {
-	orgs, err := this.ListOrg()
+func (cli githubClient) newReq(url, token string) (*http.Request, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		//TODO :is token expiry
-		return false, err
+		return nil, err
 	}
 
-	for _, item := range orgs {
-		if item == org {
-			return true, nil
-		}
-	}
-	return false, nil
-}
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 
-func (this *githubClient) ListOrg() ([]string, error) {
-	var r []string
-
-	opt := github.ListOptions{PerPage: 99, Page: 1}
-	for {
-		ls, _, err := this.c.Organizations.List(context.Background(), "", &opt)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(ls) == 0 {
-			break
-		}
-
-		for _, v := range ls {
-			r = append(r, v.GetLogin())
-		}
-
-		opt.Page += 1
-
-	}
-
-	return r, nil
+	return req, nil
 }
