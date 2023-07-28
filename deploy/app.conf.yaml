@@ -1,0 +1,41 @@
+domain:
+  domain_primitive:
+    max_length_of_name: 50
+    max_length_of_title: 50
+    max_length_of_email: 100
+    max_length_of_account: 100
+    max_length_of_corp_name: 50
+
+mongodb:
+  db:
+    conn: "{MONGODB_CONNECTION}"
+    db: "${MONGODB_NAME}"
+    ca_file: ./mongodb_ca.crt
+  collections: 
+    link: link
+    corp_signing: corp_signing
+    individual_signing: individual_signing
+
+symmetric:
+  encryption_key: "{SYMMETRIC_ENCRYPTION_KEY}"
+
+code_platform:
+  login:
+    platforms:
+    - platform: gitee
+      client_id: "{GITEE_CLIENT_ID}"
+      client_secret: "{GITEE_CLIENT_SECRET}"
+      auth_url: https://gitee.com/oauth/authorize
+      token_url: https://gitee.com/oauth/token
+      redirect_url: "${CLA_PLATFORM_URL}/api/v1/auth/gitee/login"
+      scope:
+      - user_info
+      - groups  
+    - platform: github
+      client_id: "{GITHUB_CLIENT_ID}"
+      client_secret: "{GITHUB_CLIENT_SECRET}"
+      auth_url: https://github.com/login/oauth/authorize
+      token_url: https://github.com/login/oauth/access_token
+      redirect_url: "${CLA_PLATFORM_URL}/api/v1/auth/github/login"
+      scope:
+      - read:org

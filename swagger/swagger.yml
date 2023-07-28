@@ -1,0 +1,254 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: |
+    beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /auth/{platform}:
+    post:
+      tags:
+      - auth
+      description: |-
+        authentication by user's password of code platform
+        <br>
+      operationId: AuthController.Auth
+      parameters:
+      - in: path
+        name: platform
+        description: gitee/github
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for auth on code platform
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userAccount'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/controllers.accessToken'
+        "400":
+          description: 'missing_url_path_parameter: missing url path parameter'
+        "401":
+          description: 'error_parsing_api_body:     parse payload of request failed'
+        "402":
+          description: 'unsupported_code_platform: unsupported code platform'
+        "500":
+          description: 'system_error:              system error'
+  /corporation-signing/{link_id}:
+    get:
+      tags:
+      - corporation-signing
+      description: |-
+        get all the corporations which have signed to a org
+        <br>
+      operationId: CorporationSigningController.GetAll
+      parameters:
+      - in: path
+        name: link_id
+        description: link id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.CorporationSigningSummary'
+        "400":
+          description: 'missing_url_path_parameter: missing url path parameter'
+        "401":
+          description: 'missing_token:              token is missing'
+        "402":
+          description: 'unknown_token:              token is unknown'
+        "403":
+          description: 'expired_token:              token is expired'
+        "404":
+          description: 'unauthorized_token:         the permission of token is unmatched'
+        "405":
+          description: 'unknown_link:               unkown link id'
+        "406":
+          description: 'not_yours_org:              the link doesn''t belong to your
+            community'
+        "500":
+          description: 'system_error:               system error'
+  /employee-signing/{link_id}/{signing_id}:
+    get:
+      tags:
+      - employee-signing
+      description: |-
+        get all the employees by community manager
+        <br>
+      operationId: EmployeeSigningController.List
+      parameters:
+      - in: path
+        name: :link_id
+        description: link id
+        required: true
+        type: string
+      - in: path
+        name: :signing_id
+        description: signing id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.IndividualSigningBasicInfo'
+        "400":
+          description: 'missing_url_path_parameter: missing url path parameter'
+        "401":
+          description: 'missing_token:              token is missing'
+        "402":
+          description: 'unknown_token:              token is unknown'
+        "403":
+          description: 'expired_token:              token is expired'
+        "404":
+          description: 'unauthorized_token:         the permission of token is unmatched'
+        "405":
+          description: 'unknown_link:               unkown link id'
+        "406":
+          description: 'not_yours_org:              the link doesn''t belong to your
+            community'
+        "500":
+          description: 'system_error:               system error'
+  /individual-signing/{link_id}:
+    get:
+      tags:
+      - individual-signing
+      description: |-
+        get all the individuals by community manager
+        <br>
+      operationId: IndividualSigningController.List
+      parameters:
+      - in: path
+        name: :link_id
+        description: link id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.IndividualSigningBasicInfo'
+        "400":
+          description: 'missing_url_path_parameter: missing url path parameter'
+        "401":
+          description: 'missing_token:              token is missing'
+        "402":
+          description: 'unknown_token:              token is unknown'
+        "403":
+          description: 'expired_token:              token is expired'
+        "404":
+          description: 'unauthorized_token:         the permission of token is unmatched'
+        "405":
+          description: 'unknown_link:               unkown link id'
+        "406":
+          description: 'not_yours_org:              the link doesn''t belong to your
+            community'
+        "500":
+          description: 'system_error:               system error'
+  /link/:
+    get:
+      tags:
+      - link
+      description: |-
+        list all links
+        <br>
+      operationId: LinkController.ListLinks
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.LinkInfo'
+        "401":
+          description: 'missing_token:              token is missing'
+        "402":
+          description: 'unknown_token:              token is unknown'
+        "403":
+          description: 'expired_token:              token is expired'
+        "404":
+          description: 'unauthorized_token:         the permission of token is unmatched'
+        "500":
+          description: 'system_error:               system error'
+definitions:
+  controllers.accessToken:
+    title: accessToken
+    type: object
+    properties:
+      access_token:
+        type: string
+  controllers.userAccount:
+    title: userAccount
+    type: object
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+  models.CorporationSigningBasicInfo:
+    title: CorporationSigningBasicInfo
+    type: object
+    properties:
+      admin_email:
+        type: string
+      admin_name:
+        type: string
+      cla_language:
+        type: string
+      corporation_name:
+        type: string
+      date:
+        type: string
+  models.CorporationSigningSummary:
+    title: CorporationSigningSummary
+    type: object
+    properties:
+      admin_added:
+        type: boolean
+      admin_email:
+        type: string
+      admin_name:
+        type: string
+      cla_language:
+        type: string
+      corporation_name:
+        type: string
+      date:
+        type: string
+      id:
+        type: string
+      pdf_uploaded:
+        type: boolean
+  models.IndividualSigningBasicInfo:
+    title: IndividualSigningBasicInfo
+    type: object
+    properties:
+      date:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+  models.LinkInfo:
+    title: LinkInfo
+    type: object
+    properties:
+      link_id:
+        type: string
+      org_id:
+        type: string
+      platform:
+        type: string
