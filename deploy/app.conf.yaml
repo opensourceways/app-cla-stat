@@ -18,24 +18,3 @@ mongodb:
 
 symmetric:
   encryption_key: "{SYMMETRIC_ENCRYPTION_KEY}"
-
-code_platform:
-  login:
-    platforms:
-    - platform: gitee
-      client_id: "{GITEE_CLIENT_ID}"
-      client_secret: "{GITEE_CLIENT_SECRET}"
-      auth_url: https://gitee.com/oauth/authorize
-      token_url: https://gitee.com/oauth/token
-      redirect_url: "${CLA_PLATFORM_URL}/api/v1/auth/gitee/login"
-      scope:
-      - user_info
-      - groups  
-    - platform: github
-      client_id: "{GITHUB_CLIENT_ID}"
-      client_secret: "{GITHUB_CLIENT_SECRET}"
-      auth_url: https://github.com/login/oauth/authorize
-      token_url: https://github.com/login/oauth/access_token
-      redirect_url: "${CLA_PLATFORM_URL}/api/v1/auth/github/login"
-      scope:
-      - read:org

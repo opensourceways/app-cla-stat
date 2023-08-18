@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	platformAuth "github.com/opensourceways/app-cla-stat/code-platform-auth"
 	"github.com/opensourceways/app-cla-stat/code-platform-auth/platforms"
 	"github.com/opensourceways/app-cla-stat/models"
 )
@@ -18,8 +17,7 @@ func (ctl *AuthController) Prepare() {
 }
 
 type userAccount struct {
-	UserName string `json:"username"`
-	Password string `json:"password"`
+	Token string `json:"token"`
 }
 
 type accessToken struct {
@@ -47,20 +45,8 @@ func (ctl *AuthController) Auth() {
 		return
 	}
 
-	cp, err := platformAuth.Auth[platformAuth.AuthApplyToLogin].GetAuthInstance(platform)
-	if err != nil {
-		ctl.sendFailedResponse(400, errUnsupportedCodePlatform, err, action)
-		return
-	}
-
-	token, err := cp.PasswordCredentialsToken(body.UserName, body.Password)
-	if err != nil {
-		ctl.sendFailedResponse(401, errWrongIDOrPassword, err, action)
-		return
-	}
-
 	permission := PermissionOwnerOfOrg
-	pl, ec, err := ctl.genACPayload(platform, permission, token)
+	pl, ec, err := ctl.genACPayload(platform, permission, body.Token)
 	if err != nil {
 		ctl.sendFailedResponse(500, ec, err, action)
 		return
