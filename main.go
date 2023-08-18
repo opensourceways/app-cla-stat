@@ -11,7 +11,6 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 
 	"github.com/opensourceways/app-cla-stat/accesstoken/domain"
-	platformAuth "github.com/opensourceways/app-cla-stat/code-platform-auth"
 	commondb "github.com/opensourceways/app-cla-stat/common/infrastructure/mongodb"
 	"github.com/opensourceways/app-cla-stat/config"
 	"github.com/opensourceways/app-cla-stat/interrupts"
@@ -86,11 +85,6 @@ func loadConfig(f string) *config.Config {
 func startSignSerivce(cfg *config.Config) {
 	dp.Init(&cfg.Domain.DomainPrimitive)
 	domain.Init(&cfg.Domain.AccessToken)
-
-	if err := platformAuth.Initialize(&cfg.CodePlatform); err != nil {
-		logs.Error(err)
-		return
-	}
 
 	if err := commondb.Init(&cfg.Mongodb.DB); err != nil {
 		logs.Error(err)

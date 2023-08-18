@@ -266,10 +266,7 @@
             "title": "userAccount",
             "type": "object",
             "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
+                "token": {
                     "type": "string"
                 }
             }

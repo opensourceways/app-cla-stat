@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/opensourceways/app-cla-stat/accesstoken/domain"
 	"github.com/opensourceways/app-cla-stat/accesstoken/infrastructure/symmetricencryptionimpl"
-	platformAuth "github.com/opensourceways/app-cla-stat/code-platform-auth"
 	"github.com/opensourceways/app-cla-stat/common/infrastructure/mongodb"
 	"github.com/opensourceways/app-cla-stat/signing/domain/dp"
 	"github.com/opensourceways/app-cla-stat/signing/infrastructure/repositoryimpl"
@@ -42,10 +41,9 @@ type mongodbConfig struct {
 }
 
 type Config struct {
-	Domain       domainConfig                   `json:"domain"          required:"true"`
-	Mongodb      mongodbConfig                  `json:"mongodb"         required:"true"`
-	Symmetric    symmetricencryptionimpl.Config `json:"symmetric"       required:"true"`
-	CodePlatform platformAuth.Config            `json:"code_platform"   required:"true"`
+	Domain    domainConfig                   `json:"domain"          required:"true"`
+	Mongodb   mongodbConfig                  `json:"mongodb"         required:"true"`
+	Symmetric symmetricencryptionimpl.Config `json:"symmetric"       required:"true"`
 }
 
 func (cfg *Config) configItems() []interface{} {
@@ -55,7 +53,6 @@ func (cfg *Config) configItems() []interface{} {
 		&cfg.Mongodb.DB,
 		&cfg.Mongodb.Config,
 		&cfg.Symmetric,
-		&cfg.CodePlatform,
 	}
 }
 
