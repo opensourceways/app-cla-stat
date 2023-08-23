@@ -23,7 +23,7 @@ type AccessToken struct {
 }
 
 func (at *AccessToken) Validate() error {
-	if at.Expiry >= Now() {
+	if at.Expiry < Now() {
 		return staterror.New(staterror.ErrorCodeAccessTokenExpiry)
 	}
 
