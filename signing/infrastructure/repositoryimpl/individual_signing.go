@@ -25,7 +25,9 @@ func (impl *individualSigning) FindAll(linkId string) ([]domain.IndividualSignin
 	r := make([]domain.IndividualSigning, len(dos))
 
 	for i := range dos {
-		dos[i].toIndividualSigning(&r[i])
+		if err := dos[i].toIndividualSigning(&r[i]); err != nil {
+			return nil, err
+		}
 	}
 
 	return r, nil
